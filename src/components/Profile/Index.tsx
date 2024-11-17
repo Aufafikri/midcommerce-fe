@@ -3,6 +3,7 @@ import React from 'react'
 
 const Profile = () => {
     const { data: profile } = useFetchMyProfile()
+    console.log('profile', profile)
   return (
     <div>
         <p> {profile?.name} </p>

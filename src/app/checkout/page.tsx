@@ -1,4 +1,3 @@
-// CheckoutPage.tsx
 "use client"
 
 import React, { useEffect, useState } from "react";
@@ -7,17 +6,20 @@ import { CartItem } from "@/types/cartItem"; // sesuaikan dengan tipe data CartI
 import { useCartStore } from "../../../hooks/CartStore";
 import { useFetchMyProfile } from "@/features/profile/useFetchMyProfile";
 import { useFetchProductById } from "@/features/product/useFetchProducts";
+import toast, { Toaster } from "react-hot-toast";
+import { useCheckout } from "@/features/checkout/useCheckout";
 
 const CheckoutPage = () => {
   const searchParams = useSearchParams();
   const { data: userProfile } = useFetchMyProfile()
-  const productId = searchParams.get("id");
+  const productId: any = searchParams.get("id");
   const { data: productData } = useFetchProductById(productId)
   const { cartItems } = useCartStore();
   const [product, setProduct] = useState<CartItem | null>(null);
+  const { mutate } = useCheckout()
 
   const profileId = userProfile?.id
-
+  const profileEmail = userProfile?.email
   const profileName = userProfile?.name
 
   useEffect(() => {
@@ -29,7 +31,7 @@ const CheckoutPage = () => {
 
   useEffect(() => {
     const snapScript = "https://app.sandbox.midtrans.com/snap/snap.js"
-    const clientKey = process.env.NEXT_PUBLIC_API_MIDTRANS_CLIENT_KEY
+    const clientKey: any = process.env.NEXT_PUBLIC_API_MIDTRANS_CLIENT_KEY
 
     console.log('Server Key:', process.env.NEXT_PUBLIC_API_MIDTRANS_CLIENT_SERVER);
 
@@ -52,52 +54,52 @@ const CheckoutPage = () => {
   const confirmPurchase = async () => {
     const orderId = `ORDER-${Date.now()}`;
     const grossAmount = product.price * product.quantity;
-    const userId = profileId
 
     try {
-        const response = await fetch('http://localhost:8000/transaction', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                orderId: orderId,
-                grossAmount: grossAmount,
-                name: profileName,
-                email: userProfile?.email,
-                productId: productId,
-                userId: userId,
-                productName: productData?.name,
-                productPrice: productData?.price,
-                quantity: product.quantity
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error("Failed to create transaction");
+      
+      mutate(
+        {
+          orderId: orderId,
+          grossAmount: grossAmount,
+          name: profileName!,
+          email: profileEmail!,
+          productId: productId!,
+          userId: profileId!,
+          productName: productData?.name,
+          productPrice: productData?.price,
+          quantity: product.quantity,
+        },
+        {
+          onSuccess: ({ token }) => {
+            window.snap.pay(token, {
+              onSuccess: (result: any) => {
+                console.log("Payment Success:", result);
+                window.location.href = "/status/payment-successfully";
+              },
+              onPending: (result: any) => {
+                console.log("Payment Pending:", result);
+                window.location.href = "/status/pending";
+              },
+              onError: (result: any) => {
+                console.error("Payment Error:", result);
+                toast.error("Oops! Something went wrong.");
+              },
+              onClose: () => {
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1000);
+                toast.error("Your payment was closed!");
+              },
+            });
+          },
+          onError: (error) => {
+            console.error("Transaction creation failed:", error);
+            toast.error("Oops! Something went wrong.");
+          },
         }
-
-        const { token: transactionToken } = await response.json();
-
-        window.snap.pay(transactionToken, {
-            onSuccess: function(result: any) {
-              console.log('Payment Success:', result);
-              window.location.href = "payment-succesfully"
-            },
-            onPending: function(result: any) {
-                console.log('Payment Pending:', result);
-            },
-            onError: function(result: any) {
-                console.error('Payment Error:', result);
-                alert("Payment failed. Please try again.");
-            },
-            onClose: function() {
-                alert('Payment dialog closed.');
-            }
-        });
+      );
     } catch (error) {
-        console.error("Transaction creation failed:", error);
-        alert("Payment failed. Please try again.");
+      toast.error("somethings error")
     }
 };
 
@@ -115,6 +117,7 @@ const CheckoutPage = () => {
           Confirm Purchase
         </button>
       </div>
+      <Toaster />
     </div>
   );
 };

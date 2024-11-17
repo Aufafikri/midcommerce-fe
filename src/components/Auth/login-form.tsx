@@ -22,11 +22,12 @@ const FormLogin = () => {
     const { control, handleSubmit } = form
 
     const onSubmit = handleSubmit((values) => {
+      console.log(values)
       mutate(values)
     })
   return (
     <div className='p-4 w-96 border'>
-      <h1 className='text-3xl font-bold text-center'>Sign Up</h1>
+      <h1 className='text-3xl font-bold text-center'>Sign In</h1>
       <Form {...form}>
         <form onSubmit={onSubmit} className='space-y-4'>
           <FormField
