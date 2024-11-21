@@ -1,17 +1,22 @@
 "use client";
 
-import { useFetchProducts } from "@/features/product/useFetchProducts";
+import { useFetchPaginatedProducts, useFetchPrevProducts, useFetchProducts } from "@/features/product/useFetchProducts";
 import { ProductType } from "@/types/product";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaShoppingCart } from "react-icons/fa";
 import { useCartStore } from "../../../hooks/CartStore";
 import { motion } from "framer-motion";
 import { IoTrashOutline } from "react-icons/io5";
 import { Router } from "next/router";
 import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 const ProductPage = () => {
-  const { data } = useFetchProducts();
+  // const { data } = useFetchProducts();
+  const searchParams = useSearchParams()
+  const currentPage = parseInt(searchParams.get("page") || "1", 10);
+  const { data, isFetching } = useFetchPrevProducts(currentPage)
+  // console.log('product wei', products)
   const {
     cartItems,
     addToCart,
@@ -26,6 +31,21 @@ const ProductPage = () => {
   };
 
   const router = useRouter()
+
+  const handleNextPage = () => {
+    const nextPage = currentPage + 1;
+    window.location.href = `/products?page=${nextPage}`; // Navigate to the next page
+};
+
+const handlePreviousPage = () => {
+    if (currentPage > 1) {
+        const prevPage = currentPage - 1;
+        window.location.href = `/products?page=${prevPage}`; // Navigate to the previous page
+    }
+};
+
+
+  // const allProducts = products?.pages?.flatMap(page => page.products) || [];
 
   return (
     <div className="p-4">
@@ -44,11 +64,32 @@ const ProductPage = () => {
         </div>
       </header>
 
-      {/* Product Grid */}
+      {/* <div key={product.id} className="shadow-md p-2">
+                <img src={product.image} alt={product.name} className="w-80 h-80 object-cover" />
+                <h1 className="text-xl mt-2">{product.name}</h1>
+                <p>Rp {product.price}</p>
+              </div> */}
       <div className="grid grid-cols-4 gap-4">
-        {data?.map((product: ProductType) => (
+      {data?.products.map((product) => (
+                    <div key={product.id}>
+                        <img src={product.image} alt={product.name} className="object-cover h-80 w-80" />
+                        <h2>{product.name}</h2>
+                        <p>{product.description}</p>
+                        <p>{product.price}</p>
+                        <button onClick={() => addToCart(product)}>Add to Cart</button>
+                    </div>
+                ))}
+          <div className="pagination-controls">
+          <button onClick={handlePreviousPage} disabled={currentPage === 1}>
+                    Previous
+                </button>
+                <button onClick={handleNextPage} disabled={data?.products.length < 8}>
+                    Next
+                </button>
+      </div>
+        {/* {data?.map((product: ProductType) => (
           <div key={product.id} className="shadow-md p-2">
-            <img src={product.image} alt="" className="w-80 h-80" />
+            <img src={product.image} alt="" className="w-80 h-80 object-cover" />
             <h1 className="text-xl mt-2">{product.name}</h1>
             <p>Rp {product.price}</p>
             <button
@@ -58,10 +99,9 @@ const ProductPage = () => {
               Add to Cart
             </button>
           </div>
-        ))}
+        ))} */}
       </div>
 
-      {/* Cart Popup */}
       {showCart && (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
