@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import { MdVerified } from "react-icons/md";
 
-const PaymentSuccesfully = () => {
+const PaymentSuccessfully = () => {
   const router = useRouter()
   return (
     <div className="h-screen flex justify-center items-center">
@@ -29,4 +29,4 @@ const PaymentSuccesfully = () => {
   );
 };
 
-export default PaymentSuccesfully;
+export default PaymentSuccessfully;

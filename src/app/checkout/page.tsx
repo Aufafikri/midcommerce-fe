@@ -2,12 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { CartItem } from "@/types/cartItem"; // sesuaikan dengan tipe data CartItem
 import { useCartStore } from "../../../hooks/CartStore";
 import { useFetchMyProfile } from "@/features/profile/useFetchMyProfile";
 import { useFetchProductById } from "@/features/product/useFetchProducts";
 import toast, { Toaster } from "react-hot-toast";
 import { useCheckout } from "@/features/checkout/useCheckout";
+import convertRupiah from 'rupiah-format'
+import { ProductType } from "@/types/product";
 
 const CheckoutPage = () => {
   const searchParams = useSearchParams();
@@ -15,7 +16,7 @@ const CheckoutPage = () => {
   const productId: any = searchParams.get("id");
   const { data: productData } = useFetchProductById(productId)
   const { cartItems } = useCartStore();
-  const [product, setProduct] = useState<CartItem | null>(null);
+  const [product, setProduct] = useState<ProductType| null>(null);
   const { mutate } = useCheckout()
 
   const profileId = userProfile?.id
@@ -109,9 +110,9 @@ const CheckoutPage = () => {
       <div className="shadow-md p-4 mt-4">
         <img src={product.image} alt="" className="w-40 h-40" />
         <h3 className="text-xl">{product.name}</h3>
-        <p>Price: Rp {product.price}</p>
+        <p>Price: {convertRupiah.convert(product.price)}</p>
         <p>Quantity: {product.quantity}</p>
-        <p>Total Price: Rp {product.price * product.quantity}</p>
+        <p>Subtotal: {convertRupiah.convert(product.price * product.quantity)}</p>
 
         <button className="bg-blue-500 text-white px-4 py-2 mt-4" onClick={confirmPurchase}>
           Confirm Purchase

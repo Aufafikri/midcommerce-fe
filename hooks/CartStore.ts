@@ -22,11 +22,7 @@ export const useCartStore = create<CartState>((set) => ({
       const existingProduct = state.cartItems.find((item) => item.id === product.id);
 
       if (existingProduct) {
-        return {
-          cartItems: state.cartItems.map((item) =>
-            item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-          ),
-        };
+        return state
       }
 
       return {
