@@ -1,17 +1,14 @@
 "use client";
 
 import {
-  useFetchPaginatedProducts,
   useFetchPrevProducts,
-  useFetchProducts,
 } from "@/features/product/useFetchProducts";
 import { ProductType } from "@/types/product";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { FaShoppingCart } from "react-icons/fa";
 import { useCartStore } from "../../../hooks/CartStore";
 import { motion } from "framer-motion";
 import { IoTrashOutline } from "react-icons/io5";
-import { Router } from "next/router";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import convertRupiah from "rupiah-format";
@@ -42,18 +39,6 @@ const ProductPage = () => {
   };
 
   const router = useRouter();
-
-  const handleNextPage = () => {
-    const nextPage = currentPage + 1;
-    window.location.href = `/products?page=${nextPage}`;
-  };
-
-  const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      const prevPage = currentPage - 1;
-      window.location.href = `/products?page=${prevPage}`;
-    }
-  };
 
   return (
     <div className="p-4">
@@ -104,24 +89,8 @@ const ProductPage = () => {
         ))}
       </div>
       <div className="flex justify-center items-center mt-8">
-        <button
-          onClick={handlePreviousPage}
-          disabled={currentPage === 1}
-          className="border p-1"
-        >
-          {"<"}
-        </button>
-        {/* <p className="mx-2"> {currentPage} </p> */}
-        <Pagination currentPage={currentPage} />
-        <button
-          onClick={handleNextPage}
-          disabled={data?.products.length < 8}
-          className="border p-1"
-        >
-          {">"}
-        </button>
+        <Pagination currentPage={currentPage}  />
       </div>
-
       {showCart && (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
