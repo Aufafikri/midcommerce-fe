@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react'
+import React, { useState } from 'react'
 import { z } from 'zod'
 import { registerSchema } from '../../../schema/useAuthSchema'
 import { useForm } from 'react-hook-form'
@@ -15,7 +15,9 @@ import { useRouter } from 'next/navigation'
 const FormRegister = () => {
     type FormRegister = z.infer<typeof registerSchema>
 
-    const { mutate } = useRegisterUser()
+    const [verifiedEmail, setVerifiedEmail] = useState(false)
+
+    const { mutate, isSuccess } = useRegisterUser()
 
     const form = useForm<FormRegister>({
         resolver: zodResolver(registerSchema)
@@ -31,7 +33,7 @@ const FormRegister = () => {
           toast.success("register success!"),
           setTimeout(() => {
             router.push('/')
-          }, 1000);
+          }, 5000);
         }
       })
     })
@@ -86,6 +88,8 @@ const FormRegister = () => {
           }}
           />
           <Button type='submit'> Submit </Button>
+
+          {isSuccess ? <p>Verified Your Email Address, you will be redirect in 3 sec</p> : null}
         </form>
       </Form>
       <Toaster />

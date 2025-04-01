@@ -29,18 +29,8 @@ const Navbar = () => {
       <div className='text-white flex justify-between items-center'>
         <h1 className='font-semibold text-2xl'>Midcommerces</h1>
         <div className='flex gap-4'>
-        {isLoggedIn === null ? (
-             <Skeleton className='h-4 w-[100px]' />
-          ) : isLoggedIn ? (
-            <>
-            <Profile />
-            </>
-          ) : (
-            <>
-              <SignInButton />
-              <SignUpButton />
-            </>
-          )}
+            <SignInButton />
+            <SignUpButton />
         </div>
       </div>
     </div>

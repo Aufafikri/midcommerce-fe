@@ -11,7 +11,7 @@ export const useLoginUser = () => {
     const router = useRouter()
     return useMutation({
         mutationFn: async (body: userLogin) => {
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`, body)
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/user/login`, body)
 
             return response.data
         },
@@ -20,6 +20,6 @@ export const useLoginUser = () => {
             setTimeout(() => {
                 router.push('/')
             }, 1000);
-        }
+        },
     })
 }
